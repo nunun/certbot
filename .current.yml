@@ -1,0 +1,29 @@
+services:
+  certbot:
+    deploy:
+      placement:
+        constraints:
+        - node.role == manager
+      replicas: 1
+    environment:
+      CRON: 0 6 1 * *
+      DOMAIN: fu-n.net
+    image: certbot
+    volumes:
+    - certbot_certs:/etc/letsencrypt:rw
+    - certbot_wellknown:/webroot/.well-known:rw
+version: '3.0'
+volumes:
+  certbot_certs:
+    driver: local
+    driver_opts:
+      device: :/exports/swarm-nfs-plugin/certbot_certs
+      o: addr=160.16.89.72,rw
+      type: nfs4
+  certbot_wellknown:
+    driver: local
+    driver_opts:
+      device: :/exports/swarm-nfs-plugin/certbot_wellknown
+      o: addr=160.16.89.72,rw
+      type: nfs4
+

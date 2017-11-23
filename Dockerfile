@@ -4,4 +4,4 @@ RUN mkdir -p /etc/letsencrypt /webroot/.well-known
 
 ENTRYPOINT []
 
-CMD read forever /dev/null
+CMD sleep 30000
