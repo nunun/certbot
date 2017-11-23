@@ -1,7 +1,7 @@
 version: '3'
 services:
   certbot:
-    image: certbot
+    image: nunun/certbot
     build: .
     environment:
       - DOMAIN=fu-n.net
