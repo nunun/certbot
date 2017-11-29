@@ -1,20 +1,20 @@
 SWARM_CERTBOT_PLUGIN_DOMAIN="${SWARM_CERTBOT_PLUGIN_DOMAIN:-"example.com"}"
 SWARM_CERTBOT_PLUGIN_EMAIL="${SWARM_CERTBOT_PLUGIN_EMAIL:-"admin@example.com"}"
-SWARM_CERTBOT_PLUGIN_CERT_PEM="${SWARM_CERTBOT_PLUGIN_CERT_PEM:-"certbot_cert.pem"}"
-SWARM_CERTBOT_PLUGIN_CHAIN_PEM="${SWARM_CERTBOT_PLUGIN_CHAIN_PEM:-"certbot_chain.pem"}"
-SWARM_CERTBOT_PLUGIN_FULLCHAIN_PEM="${SWARM_CERTBOT_PLUGIN_FULLCHAIN_PEM:-"certbot_fullchain.pem"}"
-SWARM_CERTBOT_PLUGIN_PRIVKEY_PEM="${SWARM_CERTBOT_PLUGIN_PRIVKEY_PEM:-"certbot_privkey.pem"}"
+SWARM_CERTBOT_PLUGIN_CERT_PEM="${SWARM_CERTBOT_PLUGIN_CERT_PEM:-"certbot.cert.pem"}"
+SWARM_CERTBOT_PLUGIN_CHAIN_PEM="${SWARM_CERTBOT_PLUGIN_CHAIN_PEM:-"certbot.chain.pem"}"
+SWARM_CERTBOT_PLUGIN_FULLCHAIN_PEM="${SWARM_CERTBOT_PLUGIN_FULLCHAIN_PEM:-"certbot.fullchain.pem"}"
+SWARM_CERTBOT_PLUGIN_PRIVKEY_PEM="${SWARM_CERTBOT_PLUGIN_PRIVKEY_PEM:-"certbot.privkey.pem"}"
 SWARM_CERTBOT_PLUGIN_CACHE_VOLUME_NAME="certbot_cache_data"
 SWARM_CERTBOT_PLUGIN_TEST_VOLUME_NAME="certbot_test_data"
 
 on_install() {
         log_debug "swarm-certbot-plugin: on_install (${*})"
-        install_certbot_secrets
+        create_default_certbot_secrets
 }
 
 on_reinstall() {
         log_debug "swarm-certbot-plugin: on_reinstall (${*})"
-        install_certbot_secrets
+        create_default_certbot_secrets
 }
 
 ###############################################################################
@@ -22,15 +22,15 @@ on_reinstall() {
 ###############################################################################
 
 cmd__manage__certbot__certs__update__by_request() {
-        update_certbot_secrets request ${*}
+        create_certbot_secrets request ${*}
 }
 
 cmd__manage__certbot__certs__update__by_cached() {
-        update_certbot_secrets update ${*}
+        create_certbot_secrets update ${*}
 }
 
 cmd__manage__certbot__certs__update__test() {
-        update_certbot_secrets test ${*}
+        create_certbot_secrets test ${*}
 }
 
 cmd__manage__certbot__certs__shell__cache_volume() {
@@ -47,9 +47,9 @@ cmd__manage__certbot__certs__shell__test_volume() {
 ###############################################################################
 ###############################################################################
 
-# install docker secrets
-# NOTE its dummy until 'swarm manage certs update'.
-install_certbot_secrets() {
+# create default certbot secrets
+create_default_certbot_secrets() {
+        # NOTE its dummy until 'swarm manage certbot certs update by_request'.
         local cert_path="/tmp/cert.pem"
         local key_path="/tmp/privkey.pem"
         local domain="${SWARM_CERTBOT_PLUGIN_DOMAIN}"
@@ -76,8 +76,8 @@ install_certbot_secrets() {
         fi
 }
 
-# create docker secrets
-update_certbot_secrets() {
+# create certbot secrets
+create_certbot_secrets() {
         local mode="${1:-"test"}"
         local domain="${SWARM_CERTBOT_PLUGIN_DOMAIN}"
         local email="${SWARM_CERTBOT_PLUGIN_EMAIL}"
@@ -98,7 +98,7 @@ update_certbot_secrets() {
         request) request="1"; update="1"; certbot_args=""; volume_name="${cache_volume_name}";;
         update)  request="";  update="1"; certbot_args=""; volume_name="${cache_volume_name}";;
         test)    request="1"; update="";  certbot_args="--dry-run"; volume_name="${test_volume_name}";;
-        *) abort "update_certbot_secrets: unknown mode '${mode}'."
+        *) abort "create_certbot_secrets: unknown mode '${mode}'."
         esac
 
         # requst
