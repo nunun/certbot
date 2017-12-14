@@ -103,7 +103,7 @@ create_certbot_secrets() {
 
         # requst
         if [ -n "${request}" ]; then
-                swarm_down force_all
+                swarm_system_down
                 log_info "requesting certs ..."
                 docker run \
                         --rm \
